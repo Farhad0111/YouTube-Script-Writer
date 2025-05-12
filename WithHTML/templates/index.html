@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YouTube Script Writer</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>YouTube Script Generator</h1>
+    <form method="post" action="/generate">
+      <input name="topic" placeholder="Video Topic" required />
+      <input name="tone" placeholder="Tone (e.g. Funny, Serious)" />
+      <input name="style" placeholder="Style (e.g. Conversational)" />
+      <input type="number" name="duration" placeholder="Duration (minutes)" min="1" />
+      <input name="audience" placeholder="Audience (e.g. Teens, Creators)" />
+      <input name="language" placeholder="Language" />
+      <textarea name="notes" placeholder="Extra Notes..."></textarea>
+      <button type="submit">Generate Script</button>
+    </form>
+
+    {% if script %}
+      <h2>📝 Generated Script</h2>
+      <pre>{{ script }}</pre>
+    {% endif %}
+  </div>
+</body>
+</html>
