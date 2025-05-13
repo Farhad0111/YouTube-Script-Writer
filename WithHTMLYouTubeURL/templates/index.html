@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YouTube Script Writer</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>YouTube Script Generator</h1>
+    
+    <!-- Toggle between regular and channel-based forms -->
+    <div class="toggle-container">
+      <span>Manual Tone</span>
+      <label class="toggle">
+        <input type="checkbox" id="form-toggle" {% if channel_id %}checked{% endif %}>
+        <span class="slider"></span>
+      </label>
+      <span>Channel-based Tone</span>
+    </div>
+    
+    <!-- Error display -->
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    
+    <!-- Regular form -->
+    <form method="post" action="/generate" id="regular-form" class="{% if channel_id %}hidden{% endif %}">
+      <div class="form-header">Standard Script Generation</div>
+      <input name="topic" placeholder="Video Topic" required value="{{ form_data.topic if form_data else '' }}" />
+      <select name="tone">
+        <option value="Informative" {% if form_data and form_data.tone == 'Informative' %}selected{% endif %}>Informative</option>
+        <option value="Entertaining" {% if form_data and form_data.tone == 'Entertaining' %}selected{% endif %}>Entertaining</option>
+        <option value="Inspirational" {% if form_data and form_data.tone == 'Inspirational' %}selected{% endif %}>Inspirational</option>
+        <option value="Educational" {% if form_data and form_data.tone == 'Educational' %}selected{% endif %}>Educational</option>
+        <option value="Persuasive" {% if form_data and form_data.tone == 'Persuasive' %}selected{% endif %}>Persuasive</option>
+        <option value="Professional" {% if form_data and form_data.tone == 'Professional' %}selected{% endif %}>Professional</option>
+        <option value="Casual" {% if form_data and form_data.tone == 'Casual' %}selected{% endif %}>Casual</option>
+        <option value="Dramatic" {% if form_data and form_data.tone == 'Dramatic' %}selected{% endif %}>Dramatic</option>
+        <option value="Thoughtful" {% if form_data and form_data.tone == 'Thoughtful' %}selected{% endif %}>Thoughtful</option>
+      </select>
+      <input name="style" placeholder="Style (e.g. Conversational)" value="{{ form_data.style if form_data else 'Conversational' }}" />
+      <input type="number" name="duration" placeholder="Duration (minutes)" min="1" value="{{ form_data.duration if form_data else 5 }}" />
+      <input name="audience" placeholder="Audience (e.g. Teens, Creators)" value="{{ form_data.audience if form_data else 'General' }}" />
+      <input name="language" placeholder="Language" value="{{ form_data.language if form_data else 'English' }}" />
+      <textarea name="notes" placeholder="Extra Notes...">{{ form_data.notes if form_data else '' }}</textarea>
+      <button type="submit">Generate Script</button>
+    </form>
+    
+    <!-- Channel-based form -->
+    <form method="post" action="/generate-from-channel" id="channel-form" class="{% if not channel_id %}hidden{% endif %}">
+      <div class="form-header">Generate Script Using Channel's Tone</div>
+      <input id="channel-id" name="channel_id" placeholder="YouTube Channel URL or ID" required value="{{ channel_id if channel_id else '' }}" />
+      
+      <!-- Channel info section - populated via JavaScript -->
+      <div id="channel-info" class="{% if not channel_info %}hidden{% endif %}">
+        {% if channel_info %}
+        <div class="channel-preview">
+          <h3>{{ channel_info.title }}</h3>
+          <p><strong>Subscribers:</strong> {{ channel_info.subscribers }}</p>
+          <p><strong>Videos:</strong> {{ channel_info.videos }}</p>
+          <div class="tone-info">
+            <p><strong>Primary Tone:</strong> {{ channel_info.primary_tone }}</p>
+            <p><strong>Secondary Tones:</strong> {{ ", ".join(channel_info.secondary_tones) }}</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      
+      <input name="topic" placeholder="Video Topic" required value="{{ form_data.topic if form_data else '' }}" />
+      <input name="style" placeholder="Style (e.g. Conversational)" value="{{ form_data.style if form_data else 'Conversational' }}" />
+      <input type="number" name="duration" placeholder="Duration (minutes)" min="1" value="{{ form_data.duration if form_data else 5 }}" />
+      <input name="audience" placeholder="Audience (e.g. Teens, Creators)" value="{{ form_data.audience if form_data else 'General' }}" />
+      <input name="language" placeholder="Language" value="{{ form_data.language if form_data else 'English' }}" />
+      <textarea name="notes" placeholder="Extra Notes...">{{ form_data.notes if form_data else '' }}</textarea>
+      <p><strong>Detected Tone:</strong> <span id="detected-tone">{% if channel_info %}{{ channel_info.primary_tone }}{% else %}Will be detected from channel{% endif %}</span></p>
+      <button type="submit">Generate Script with Channel Tone</button>
+    </form>
+    
+    <!-- Loading spinner -->
+    <div id="loading-spinner" class="spinner hidden"></div>
+    
+    <!-- Generated script output -->
+    {% if script %}
+      <div class="script-header">
+        <h2>📝 Generated Script</h2>
+        <button id="copy-script" class="copy-btn">Copy Script</button>
+      </div>
+      <pre id="script-content">{{ script }}</pre>
+    {% endif %}
+  </div>
+  
+  <script src="/static/script.js"></script>
+</body>
+</html>
